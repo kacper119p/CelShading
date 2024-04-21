@@ -1,0 +1,23 @@
+{
+  "name": "com.kacper119p.cel-shading",
+  "displayName": "Cel-Shading",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "Cel-Shading for URP.",
+  "keywords": [
+    "shader",
+    "assets",
+    "unitypackage",
+    "unity"
+  ],
+  "dependencies": {
+    "com.unity.render-pipelines.universal": "14.0.10"
+  },
+  "license": "MIT",
+  "licensesUrl": "",
+  "author": {
+    "name": "Kacper Pastuszka",
+    "email": "kacper119p@gmail.com",
+    "url": "https://github.com/kacper119p"
+  }
+}
