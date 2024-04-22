@@ -13,7 +13,23 @@ struct CelShadingLightData
     float3 viewDirWS;
     half3 baseColor;
     half3 normalWS;
+    half glossiness;
 };
+
+half3 CalculateDiffuse(const Light light, const half attenuation, const CelShadingLightData data)
+{
+    const half3 diffuse = light.color * attenuation * saturate(dot(data.normalWS, light.direction));
+    return step(0.1, diffuse);
+}
+
+half3 CalculateSpecular(const Light light, const half attenuation, const CelShadingLightData data)
+{
+    half3 specular = pow(saturate(dot(data.normalWS, normalize(light.direction + data.viewDirWS))),
+                         220 / data.glossiness);
+    specular = step(0.9, specular);
+    specular *= light.color * attenuation;
+    return specular;
+}
 
 /**
  * \brief Calculates light and returns calculated color of the surface.
@@ -24,30 +40,27 @@ half3 CalculateLight(CelShadingLightData lightData)
 {
     const uint additionalLightCount = GetAdditionalLightsCount();
     half3 lightDiffuse = 0;
-
-    half specular = 0;
+    half3 specular = 0;
 
     for (uint i = 0; i < additionalLightCount; ++i)
     {
         const Light light = GetAdditionalLight(i, lightData.positionWS);
         const half attenuation = light.distanceAttenuation * light.shadowAttenuation;
-        half diffuse = light.color * attenuation * saturate(dot(lightData.normalWS, light.direction));
-        diffuse = step(0.1, diffuse);
-        
+        const half3 diffuse = CalculateDiffuse(light, attenuation, lightData);
+        specular += CalculateSpecular(light, attenuation, lightData);
         lightDiffuse += diffuse;
     }
 
     const Light light = GetMainLight(lightData.shadowCoord);
     const half attenuation = light.distanceAttenuation * light.shadowAttenuation;
-    half diffuse = light.color * attenuation * saturate(dot(lightData.normalWS, light.direction));
-    diffuse = step(0.1, diffuse);
-    
+    const half3 diffuse = CalculateDiffuse(light, attenuation, lightData);
+    specular += CalculateSpecular(light, attenuation, lightData);
     lightDiffuse += diffuse;
 
     const half3 ambientLight = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
     lightDiffuse = max(lightDiffuse, ambientLight);
 
-    return lightDiffuse * lightData.baseColor + step(0.1, specular);
+    return lightDiffuse * lightData.baseColor + specular;
 }
 
 #endif

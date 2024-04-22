@@ -4,6 +4,7 @@ Shader "Cel-Shading/Cel-Shading"
     {
         [MainColor] _BaseColor ("Base Color", Color) = (0.5, 0.5, 0.5,1)
         _BaseMap ("Base Map", 2D) = "white" {}
+        _Glossiness ("Glossiness", Float) = 0.5
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2.0
     }
     SubShader
@@ -61,6 +62,7 @@ Shader "Cel-Shading/Cel-Shading"
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 sampler2D _BaseMap;
+                half _Glossiness;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -94,11 +96,12 @@ Shader "Cel-Shading/Cel-Shading"
                 light_data.baseColor = _BaseColor * tex2D(_BaseMap, IN.uv);
                 light_data.normalWS = IN.normalWS;
                 light_data.positionWS = IN.positionWS;
-                light_data.viewDirWS = GetWorldSpaceViewDir(IN.positionWS);
+                light_data.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
+                light_data.glossiness = _Glossiness;
 
                 half3 color = CalculateLight(light_data);
 
-                return half4(color.r, color.g, color.b, 1);
+                return half4(color, 1);
             }
             ENDHLSL
         }
