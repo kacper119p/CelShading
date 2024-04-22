@@ -20,7 +20,7 @@ half3 CalculateDiffuse(const Light light, const half attenuation, const CelShadi
 {
     const half3 attenuatedColor = light.color * attenuation;
     const half3 diffuse = attenuatedColor * saturate(dot(data.normalWS, light.direction));
-    return step(0.1, diffuse) * attenuatedColor;
+    return step(0.1, diffuse);
 }
 
 half3 CalculateSpecular(const Light light, const half attenuation, const CelShadingLightData data)
@@ -46,7 +46,12 @@ half3 CalculateLight(CelShadingLightData lightData)
     for (uint i = 0; i < additionalLightCount; ++i)
     {
         const Light light = GetAdditionalLight(i, lightData.positionWS);
-        const half attenuation = light.distanceAttenuation * light.shadowAttenuation;
+        #ifdef _ADDITIONAL_LIGHT_SHADOWS
+        const half attenuation = light.distanceAttenuation * AdditionalLightRealtimeShadow(
+            i, lightData.positionWS, light.direction);
+        #else
+        const half attenuation = light.distanceAttenuation;
+        #endif
         const half3 diffuse = CalculateDiffuse(light, attenuation, lightData);
         specular += CalculateSpecular(light, attenuation, lightData);
         lightDiffuse += diffuse;
@@ -61,7 +66,7 @@ half3 CalculateLight(CelShadingLightData lightData)
     const half3 ambientLight = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
     lightDiffuse = max(lightDiffuse, ambientLight);
 
-    return lightDiffuse * lightData.baseColor + specular;
+    return min(1, lightDiffuse * lightData.baseColor + specular);
 }
 
 #endif
