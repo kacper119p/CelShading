@@ -231,5 +231,5 @@ Shader "Cel-Shading/Cel-Shading"
         }
 
     }
-    FallBack "Universal Render Pipeline/Lit"
+    FallBack "Hidden/Core/FallbackError"
 }
