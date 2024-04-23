@@ -65,6 +65,7 @@ Shader "Cel-Shading/Cel-Shading"
                 half4 _BaseColor;
                 sampler2D _BaseMap;
                 half _Glossiness;
+                sampler2D _NormalMap;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -84,7 +85,7 @@ Shader "Cel-Shading/Cel-Shading"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                IN.normalWS = normalize(IN.normalWS);
+                IN.normalWS = BlendNormal(tex2D(_NormalMap, IN.uv),normalize(IN.normalWS));
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                 float4 shadowCoord = IN.shadowCoord;
                 #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
