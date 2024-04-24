@@ -19,8 +19,8 @@ struct CelShadingLightData
 half3 CalculateDiffuse(const Light light, const half attenuation, const CelShadingLightData data)
 {
     const half3 attenuatedColor = light.color * attenuation;
-    const half3 diffuse = attenuatedColor * saturate(dot(data.normalWS, light.direction));
-    return step(0.1, diffuse);
+    const half lightAmount = attenuatedColor * saturate(dot(data.normalWS, light.direction));
+    return step(0.1, lightAmount) * attenuatedColor;
 }
 
 half3 CalculateSpecular(const Light light, const half attenuation, const CelShadingLightData data)
@@ -66,7 +66,7 @@ half3 CalculateLight(CelShadingLightData lightData)
     const half3 ambientLight = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
     lightDiffuse = max(lightDiffuse, ambientLight);
 
-    return min(1, lightDiffuse * lightData.baseColor + specular);
+    return lightDiffuse * lightData.baseColor + specular;
 }
 
 #endif
