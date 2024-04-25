@@ -25,10 +25,10 @@ half3 CalculateDiffuse(const Light light, const half attenuation, const CelShadi
 
 half3 CalculateSpecular(const Light light, const half attenuation, const CelShadingLightData data)
 {
-    half3 specular = pow(saturate(dot(data.normalWS, normalize(light.direction + data.viewDirWS))),
-                         220 / data.glossiness);
-    specular = step(0.9, specular);
-    specular *= light.color * attenuation;
+    half lightAmount = dot(data.normalWS, normalize(light.direction + data.viewDirWS));
+    lightAmount = pow(saturate(lightAmount), 220 / data.glossiness) * attenuation;
+    lightAmount = step(0.9, lightAmount);
+    half3 specular = light.color * lightAmount;
     return specular;
 }
 

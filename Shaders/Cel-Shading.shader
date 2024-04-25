@@ -38,7 +38,7 @@ Shader "Cel-Shading/Cel-Shading"
             #pragma multi_compile_instancing
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.kacper119p.cel-shading/Cel-ShadingLightingModel.hlsl"
+            #include "Packages/com.kacper119p.cel-shading/ShaderLibrary/Cel-ShadingLightingModel.hlsl"
 
             struct Attributes
             {
