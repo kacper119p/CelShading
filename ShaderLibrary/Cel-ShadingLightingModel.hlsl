@@ -19,8 +19,29 @@ struct CelShadingLightData
 half3 CalculateDiffuse(const Light light, const half attenuation, const CelShadingLightData data)
 {
     const half3 attenuatedColor = light.color * attenuation;
-    const half lightAmount = attenuatedColor * saturate(dot(data.normalWS, light.direction));
-    return step(0.1, lightAmount) * attenuatedColor;
+    #if _ADDITIONAL_LIGHTS_HARD
+    const half3 lightAmount = attenuatedColor * saturate(dot(data.normalWS, light.direction));
+    return step(0.01, lightAmount) * attenuatedColor;
+    #else
+    return attenuatedColor;
+    #endif
+}
+
+half3 CalculateDiffuseSoft(const Light light, const half attenuation, const CelShadingLightData data)
+{
+    const half3 attenuatedColor = light.color * attenuation;
+    const half3 lightAmount = attenuatedColor * saturate(dot(data.normalWS, light.direction));
+    return saturate(lightAmount) * attenuatedColor;
+}
+
+half RemapLightDistanceAttenuationImproved(const half attenuation)
+{
+    return 1 / (1 / attenuation + 1);
+}
+
+half RemapLightDistanceAttenuationLinear(half3 lightColor, const half attenuation)
+{
+    return (lightColor - (1 / attenuation)) / lightColor;
 }
 
 half3 CalculateSpecular(const Light light, const half attenuation, const CelShadingLightData data)
@@ -46,12 +67,18 @@ half3 CalculateLight(CelShadingLightData lightData)
     for (uint i = 0; i < additionalLightCount; ++i)
     {
         const Light light = GetAdditionalLight(i, lightData.positionWS);
-        #ifdef _ADDITIONAL_LIGHT_SHADOWS
-        const half attenuation = light.distanceAttenuation * AdditionalLightRealtimeShadow(
-            i, lightData.positionWS, light.direction);
+        #if _FALLOFF_IMPROVED
+        half attenuation = RemapLightDistanceAttenuationImproved(light.distanceAttenuation);
+        #elif _FALLOFF_LINEAR
+        half attenuation = RemapLightDistanceAttenuationLinear(light.color, light.distanceAttenuation);
         #else
-        const half attenuation = light.distanceAttenuation;
+        half attenuation = light.distanceAttenuation;
         #endif
+
+        #ifdef _ADDITIONAL_LIGHT_SHADOWS
+        attenuation *= AdditionalLightRealtimeShadow(i, lightData.positionWS, light.direction);
+        #endif
+
         const half3 diffuse = CalculateDiffuse(light, attenuation, lightData);
         specular += CalculateSpecular(light, attenuation, lightData);
         lightDiffuse += diffuse;

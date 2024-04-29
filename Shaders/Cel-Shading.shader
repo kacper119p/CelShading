@@ -7,6 +7,8 @@ Shader "Cel-Shading/Cel-Shading"
         [Normal] _NormalMap ("Normal Map",2D) = "bump"{}
         _Glossiness ("Glossiness", Float) = 0.5
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2.0
+        [KeywordEnum(Default, Improved, Linear)] _Falloff ("Falloff", int) = 0
+        [KeywordEnum(Hard, Soft)] _Additional_Lights ("Lights", int) = 0
     }
     SubShader
     {
@@ -28,6 +30,9 @@ Shader "Cel-Shading/Cel-Shading"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
+
+            #pragma multi_compile _FALLOFF_DEFAULT _FALLOFF_IMPROVED _FALLOFF_LINEAR
+            #pragma multi_compile _ADDITIONAL_LIGHTS_HARD _ADDITIONAL_LIGHTS_SOFT
 
             #pragma vertex vert
             #pragma fragment frag
@@ -85,7 +90,7 @@ Shader "Cel-Shading/Cel-Shading"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                IN.normalWS = BlendNormal(tex2D(_NormalMap, IN.uv),normalize(IN.normalWS));
+                IN.normalWS = BlendNormal(tex2D(_NormalMap, IN.uv), normalize(IN.normalWS));
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                 float4 shadowCoord = IN.shadowCoord;
                 #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
