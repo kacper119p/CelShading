@@ -20,11 +20,51 @@ namespace Kacper119p.CelShading.PostProcessing
         [SerializeField] private float _normalThreshold = 1f;
 
         private EdgeDetectionRenderPass _renderPass;
+        private static readonly int EdgeColorPropertyID = Shader.PropertyToID("_Edge_Color");
         private static readonly int ThicknessPropertyID = Shader.PropertyToID("_Sampling_Range");
         private static readonly int DepthThresholdPropertyID = Shader.PropertyToID("_Depth_Threshold");
         private static readonly int NormalThresholdPropertyID = Shader.PropertyToID("_Normal_Threshold");
-        private static readonly int EdgeColorPropertyID = Shader.PropertyToID("_Edge_Color");
         private const int CameraTypes = (int)CameraType.Game | (int)CameraType.SceneView;
+
+        public Color EdgeColor
+        {
+            get => _edgeColor;
+            set
+            {
+                _edgeColor = value;
+                _renderPass.Material.SetColor(EdgeColorPropertyID, _edgeColor);
+            }
+        }
+
+        public float Thickness
+        {
+            get => _thickness;
+            set
+            {
+                _thickness = value;
+                _renderPass.Material.SetFloat(ThicknessPropertyID, _thickness * 0.001f);
+            }
+        }
+
+        public float DepthThreshold
+        {
+            get => _depthThreshold;
+            set
+            {
+                _depthThreshold = value;
+                _renderPass.Material.SetFloat(DepthThresholdPropertyID, _depthThreshold * 0.05f);
+            }
+        }
+
+        public float NormalThreshold
+        {
+            get => _normalThreshold;
+            set
+            {
+                _normalThreshold = value;
+                _renderPass.Material.SetFloat(NormalThresholdPropertyID, _normalThreshold * 0.05f);
+            }
+        }
 
         public override void Create()
         {
@@ -58,10 +98,10 @@ namespace Kacper119p.CelShading.PostProcessing
         private void SetMaterialProperties()
         {
             if (_renderPass == null) return;
+            _renderPass.Material.SetColor(EdgeColorPropertyID, _edgeColor);
             _renderPass.Material.SetFloat(ThicknessPropertyID, _thickness * 0.001f);
             _renderPass.Material.SetFloat(DepthThresholdPropertyID, _depthThreshold * 0.05f);
             _renderPass.Material.SetFloat(NormalThresholdPropertyID, _normalThreshold * 0.05f);
-            _renderPass.Material.SetColor(EdgeColorPropertyID, _edgeColor);
         }
 
         private sealed class EdgeDetectionRenderPass : ScriptableRenderPass
