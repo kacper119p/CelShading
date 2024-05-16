@@ -45,6 +45,7 @@ Shader "Cel-Shading/Cel-Shading"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.kacper119p.cel-shading/ShaderLibrary/Cel-ShadingLightingModel.hlsl"
+            #include "Packages/com.kacper119p.cel-shading/ShaderLibrary/Utility.hlsl"
 
             struct Attributes
             {
@@ -72,9 +73,11 @@ Shader "Cel-Shading/Cel-Shading"
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 sampler2D _BaseMap;
+                float4 _BaseMap_ST;
                 half _Glossiness;
                 sampler2D _NormalMap;
                 float _NormalStrength;
+                float4 _NormalMap_ST;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -97,10 +100,11 @@ Shader "Cel-Shading/Cel-Shading"
             {
                 IN.normalWS = normalize(IN.normalWS);
                 IN.tangentWS = normalize(IN.tangentWS);
-                float3x3 tangentToWorldMatrix = CreateTangentToWorld(IN.normalWS, IN.tangentWS.xyz, IN.tangentWS.w);
+                float3x3 tangentToWorldMatrix = CreateTangentToWorld(IN.normalWS, IN.tangentWS.xyz, IN.tangentWS.x);
 
-                float3 normalMap = UnpackNormal(tex2D(_NormalMap, IN.uv)).rgb;
-                normalMap = float3(normalMap.rg * _NormalStrength, lerp(1, normalMap.b, saturate(_NormalStrength)));
+                const float2 normalMapUV = TRANSFORM_TEX(IN.uv, _NormalMap);
+                float3 normalMap = UnpackNormal(tex2D(_NormalMap, normalMapUV)).rgb;
+                normalMap = ApplyNormalStrength(normalMap, _NormalStrength);
                 IN.normalWS = TransformTangentToWorld(normalMap, tangentToWorldMatrix, true);
 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
@@ -111,9 +115,11 @@ Shader "Cel-Shading/Cel-Shading"
                 float4 shadowCoord = float4(0, 0, 0, 0);
                 #endif
 
+                const float2 baseMapUV = TRANSFORM_TEX(IN.uv, _BaseMap);
+
                 CelShadingLightData light_data;
                 light_data.shadowCoord = shadowCoord;
-                light_data.baseColor = _BaseColor.rgb * tex2D(_BaseMap, IN.uv).rgb;
+                light_data.baseColor = _BaseColor.rgb * tex2D(_BaseMap, baseMapUV).rgb;
                 light_data.normalWS = IN.normalWS;
                 light_data.positionWS = IN.positionWS;
                 light_data.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));

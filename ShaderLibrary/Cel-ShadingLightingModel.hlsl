@@ -1,5 +1,5 @@
-#ifndef CEL_SHADING_LIGHTING_MODEL
-#define CEL_SHADING_LIGHTING_MODEL
+#ifndef KACPER119P_SHADERS_CEL_SHADING_LIGHTING_MODEL_INCLUDED
+#define KACPER119P_SHADERS_CEL_SHADING_LIGHTING_MODEL_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
