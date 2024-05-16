@@ -1,5 +1,5 @@
-#ifndef CEL_SHADING_LIGHTING_MODEL
-#define CEL_SHADING_LIGHTING_MODEL
+#ifndef KACPER119P_SHADERS_CEL_SHADING_LIGHTING_MODEL_INCLUDED
+#define KACPER119P_SHADERS_CEL_SHADING_LIGHTING_MODEL_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
@@ -20,35 +20,28 @@ half3 CalculateDiffuse(const Light light, const half attenuation, const CelShadi
 {
     const half3 attenuatedColor = light.color * attenuation;
     #if _ADDITIONAL_LIGHTS_HARD
-    const half3 lightAmount = attenuatedColor * saturate(dot(data.normalWS, light.direction));
-    return step(0.01, lightAmount) * attenuatedColor;
+    const half3 lightAmount = attenuatedColor * dot(data.normalWS, light.direction);
+    return step(0.1h, lightAmount) * attenuatedColor;
     #else
-    return attenuatedColor;
+     return attenuatedColor * dot(data.normalWS, light.direction);
     #endif
-}
-
-half3 CalculateDiffuseSoft(const Light light, const half attenuation, const CelShadingLightData data)
-{
-    const half3 attenuatedColor = light.color * attenuation;
-    const half3 lightAmount = attenuatedColor * saturate(dot(data.normalWS, light.direction));
-    return saturate(lightAmount) * attenuatedColor;
 }
 
 half RemapLightDistanceAttenuationImproved(const half attenuation)
 {
-    return 1 / (1 / attenuation + 1);
+    return 1.0h / (1.0h / attenuation + 1.0h);
 }
 
 half RemapLightDistanceAttenuationLinear(half3 lightColor, const half attenuation)
 {
-    return (lightColor - (1 / attenuation)) / lightColor;
+    return (lightColor - (1.0h / attenuation)) / lightColor;
 }
 
 half3 CalculateSpecular(const Light light, const half attenuation, const CelShadingLightData data)
 {
     half lightAmount = dot(data.normalWS, normalize(light.direction + data.viewDirWS));
-    lightAmount = pow(saturate(lightAmount), 220 / data.glossiness) * attenuation;
-    lightAmount = step(0.9, lightAmount);
+    lightAmount = pow(saturate(lightAmount), 220.0h / data.glossiness) * attenuation;
+    lightAmount = step(0.9h, lightAmount);
     half3 specular = light.color * lightAmount;
     return specular;
 }
@@ -91,7 +84,7 @@ half3 CalculateLight(CelShadingLightData lightData)
     lightDiffuse += diffuse;
 
     const half3 ambientLight = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
-    lightDiffuse = max(lightDiffuse, ambientLight);
+    lightDiffuse = lightDiffuse + ambientLight;
 
     return lightDiffuse * lightData.baseColor + specular;
 }
