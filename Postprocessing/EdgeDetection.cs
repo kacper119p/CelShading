@@ -19,6 +19,8 @@ namespace Kacper119p.CelShading.PostProcessing
         [SerializeField] private float _depthThreshold = 1f;
         [SerializeField] private float _normalThreshold = 1f;
 
+        [SerializeField, HideInInspector] private Shader _shader;
+
         private EdgeDetectionRenderPass _renderPass;
         private static readonly int EdgeColorPropertyID = Shader.PropertyToID("_Edge_Color");
         private static readonly int ThicknessPropertyID = Shader.PropertyToID("_Sampling_Range");
@@ -68,7 +70,13 @@ namespace Kacper119p.CelShading.PostProcessing
 
         public override void Create()
         {
-            _renderPass = new EdgeDetectionRenderPass
+            _shader = Shader.Find("Hidden/kacper119p/EdgeDetection");
+            if (_shader == null)
+            {
+                throw new MissingReferenceException("Edge detection shader not found");
+            }
+
+            _renderPass = new EdgeDetectionRenderPass(_shader)
             {
                 renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing
             };
@@ -110,14 +118,8 @@ namespace Kacper119p.CelShading.PostProcessing
 
             public Material Material => _material;
 
-            public EdgeDetectionRenderPass()
+            public EdgeDetectionRenderPass(Shader shader)
             {
-                Shader shader = Shader.Find("Hidden/kacper119p/EdgeDetection");
-                if (shader == null)
-                {
-                    throw new MissingReferenceException("Edge detection shader not found");
-                }
-
                 _material = new Material(shader);
             }
 
