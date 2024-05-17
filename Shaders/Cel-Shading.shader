@@ -100,7 +100,7 @@ Shader "Cel-Shading/Cel-Shading"
             {
                 IN.normalWS = normalize(IN.normalWS);
                 IN.tangentWS = normalize(IN.tangentWS);
-                float3x3 tangentToWorldMatrix = CreateTangentToWorld(IN.normalWS, IN.tangentWS.xyz, IN.tangentWS.x);
+                float3x3 tangentToWorldMatrix = CreateTangentToWorld(IN.normalWS, IN.tangentWS.xyz, IN.tangentWS.w);
 
                 const float2 normalMapUV = TRANSFORM_TEX(IN.uv, _NormalMap);
                 float3 normalMap = UnpackNormal(tex2D(_NormalMap, normalMapUV)).rgb;
