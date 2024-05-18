@@ -4,6 +4,8 @@ Shader "Cel-Shading/Cel-Shading"
     {
         [MainColor] _BaseColor ("Base Color", Color) = (0.5, 0.5, 0.5,1)
         _BaseMap ("Base Map", 2D) = "white" {}
+        [HDR] _EmissionColor ("Emission Color", Color) = (0, 0, 0, 1)
+        _EmissionMap ("Emission Map", 2D) = "white" {}
         [Normal] _NormalMap ("Normal Map",2D) = "bump"{}
         _NormalStrength ("Normal Strength", Float) = 1
         _Glossiness ("Glossiness", Float) = 0.5
@@ -71,7 +73,10 @@ Shader "Cel-Shading/Cel-Shading"
             };
 
             CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
+                half3 _BaseColor;
+                half3 _EmissionColor;
+                sampler2D _EmissionMap;
+                float4 _EmissionMap_ST;
                 sampler2D _BaseMap;
                 float4 _BaseMap_ST;
                 half _Glossiness;
@@ -119,13 +124,18 @@ Shader "Cel-Shading/Cel-Shading"
 
                 CelShadingLightData light_data;
                 light_data.shadowCoord = shadowCoord;
-                light_data.baseColor = _BaseColor.rgb * tex2D(_BaseMap, baseMapUV).rgb;
+                light_data.baseColor = _BaseColor * tex2D(_BaseMap, baseMapUV).rgb;
                 light_data.normalWS = IN.normalWS;
                 light_data.positionWS = IN.positionWS;
                 light_data.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
                 light_data.glossiness = _Glossiness;
 
                 half3 color = CalculateLight(light_data);
+
+                float2 emissionUV = TRANSFORM_TEX(IN.uv, _EmissionMap);
+                half3 emission = _EmissionColor * tex2D(_EmissionMap, emissionUV).rgb;
+
+                color += emission;
 
                 return half4(color, 1);
             }
