@@ -9,6 +9,7 @@ Shader "Cel-Shading/Cel-Shading"
         [Normal] _NormalMap ("Normal Map",2D) = "bump"{}
         _NormalStrength ("Normal Strength", Float) = 1
         _Glossiness ("Glossiness", Float) = 0.5
+        _Glossiness_Map ("Glossiness Map", 2D) = "white" {}
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2.0
         [KeywordEnum(Default, Improved, Linear)] _Falloff ("Falloff", int) = 0
         [KeywordEnum(Hard, Soft)] _Additional_Lights ("Lights", int) = 0
@@ -80,6 +81,8 @@ Shader "Cel-Shading/Cel-Shading"
                 sampler2D _BaseMap;
                 float4 _BaseMap_ST;
                 half _Glossiness;
+                sampler2D _Glossiness_Map;
+                float4 _Glossiness_Map_ST;
                 sampler2D _NormalMap;
                 float _NormalStrength;
                 float4 _NormalMap_ST;
@@ -121,6 +124,7 @@ Shader "Cel-Shading/Cel-Shading"
                 #endif
 
                 const float2 baseMapUV = TRANSFORM_TEX(IN.uv, _BaseMap);
+                const float2 glossinessUV = TRANSFORM_TEX(IN.uv, _EmissionMap);
 
                 CelShadingLightData light_data;
                 light_data.shadowCoord = shadowCoord;
@@ -128,7 +132,7 @@ Shader "Cel-Shading/Cel-Shading"
                 light_data.normalWS = IN.normalWS;
                 light_data.positionWS = IN.positionWS;
                 light_data.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
-                light_data.glossiness = _Glossiness;
+                light_data.glossiness = _Glossiness * tex2D(_Glossiness_Map, glossinessUV).rgb;
 
                 half3 color = CalculateLight(light_data);
 
