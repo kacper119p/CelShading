@@ -26,8 +26,6 @@ Shader "Hidden/kacper119p/EdgeDetection"
 
     float4 Fragment(Varyings input) : SV_Target
     {
-        const float EPSILON = 1e-5;
-
         float2 UpRight = input.texcoord + float2(1, 1) * _Sampling_Range;
         float2 DownRight = input.texcoord + float2(1, -1) * _Sampling_Range;
         float2 DownLeft = input.texcoord + float2(-1, -1) * _Sampling_Range;
@@ -64,7 +62,7 @@ Shader "Hidden/kacper119p/EdgeDetection"
         float nDotV = 1 - dot(normal, viewDir);
 
         float normalThreshold = pow(saturate(lerp(1, _Normal_Threshold, nDotV)), 0.25);
-        float depthThreshold = _Depth_Threshold * (normalThreshold + 7) * max(EPSILON, depth);
+        float depthThreshold = _Depth_Threshold * (normalThreshold + 7) * max(FLT_EPS, depth);
 
         float depthDifference = length(float2(depthUpRight - depthDownLeft, depthUpLeft - depthDownRight));
 
