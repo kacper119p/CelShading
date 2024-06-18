@@ -10,6 +10,7 @@ namespace com.kacper119p.CelShading.Editor
         private SerializedProperty _thickness;
         private SerializedProperty _depthThreshold;
         private SerializedProperty _normalThreshold;
+        private SerializedProperty _colorEdgeDetection;
 
         void OnEnable()
         {
@@ -17,6 +18,7 @@ namespace com.kacper119p.CelShading.Editor
             _thickness = serializedObject.FindProperty("_thickness");
             _depthThreshold = serializedObject.FindProperty("_depthThreshold");
             _normalThreshold = serializedObject.FindProperty("_normalThreshold");
+            _colorEdgeDetection = serializedObject.FindProperty("_colorEdgeDetection");
         }
 
         public override void OnInspectorGUI()
@@ -26,6 +28,7 @@ namespace com.kacper119p.CelShading.Editor
             EditorGUILayout.PropertyField(_thickness);
             EditorGUILayout.PropertyField(_depthThreshold);
             EditorGUILayout.PropertyField(_normalThreshold);
+            EditorGUILayout.PropertyField(_colorEdgeDetection);
             serializedObject.ApplyModifiedProperties();
         }
     }

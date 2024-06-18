@@ -6,6 +6,7 @@ Shader "Hidden/kacper119p/EdgeDetection"
         _Sampling_Range ("Sampling Range", Range(0,1)) = 0.001
         _Depth_Threshold ("Depth Treshold", Float) = 0.05
         _Normal_Threshold ("Normal Treshold", Float) = 0.05
+        [Toggle] _Color_Edges ("Color Edges", int) = 0
     }
 
     HLSLINCLUDE
@@ -31,6 +32,10 @@ Shader "Hidden/kacper119p/EdgeDetection"
         float2 DownLeft = input.texcoord + float2(-1, -1) * _Sampling_Range;
         float2 UpLeft = input.texcoord + float2(-1, 1) * _Sampling_Range;
         float3 color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, input.texcoord).rgb;
+
+        #if _COLOR_EDGES_ON
+        //TODO Color Edge Detection
+        #endif
 
         #if UNITY_REVERSED_Z
         float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, input.texcoord).r;
@@ -91,6 +96,7 @@ Shader "Hidden/kacper119p/EdgeDetection"
             Name "EdgeDetection"
 
             HLSLPROGRAM
+            #pragma shader_feature _COLOR_EDGES_ON
             #pragma vertex Vert
             #pragma fragment Fragment
             ENDHLSL
