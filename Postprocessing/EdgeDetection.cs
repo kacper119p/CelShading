@@ -82,6 +82,16 @@ namespace Kacper119p.CelShading.PostProcessing
                 _renderPass.Material.SetKeyword(_colorEdgesKeyword, _colorEdgeDetection);
             }
         }
+        
+        public float ColorThreshold
+        {
+            get => _colorThreshold;
+            set
+            {
+                _colorThreshold = value;
+                _renderPass.Material.SetFloat(ColorThresholdPropertyID, _colorThreshold);
+            }
+        }
 
         public override void Create()
         {
