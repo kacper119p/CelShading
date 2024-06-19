@@ -106,7 +106,7 @@ Shader "Hidden/kacper119p/EdgeDetection"
             Name "EdgeDetection"
 
             HLSLPROGRAM
-            #pragma shader_feature _COLOR_EDGES_ON
+            #pragma multi_compile _ _COLOR_EDGES_ON
             #pragma vertex Vert
             #pragma fragment Fragment
             ENDHLSL
