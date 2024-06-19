@@ -159,29 +159,19 @@ namespace Kacper119p.CelShading.PostProcessing
 
             public EdgeDetectionRenderPass(Shader shader)
             {
-                _material = new Material(shader);
-            }
-
-            public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
-            {
-            }
-
-            public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
-            {
+                _material = new Material(shader)
+                {
+                    hideFlags = HideFlags.HideAndDontSave
+                };
             }
 
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
             {
                 CommandBuffer cmd = CommandBufferPool.Get();
-                Blit(cmd, ref renderingData, _material, 0);
+                Blit(cmd, ref renderingData, _material);
                 context.ExecuteCommandBuffer(cmd);
                 CommandBufferPool.Release(cmd);
             }
-
-            public override void OnCameraCleanup(CommandBuffer cmd)
-            {
-            }
-
 
             public void Dispose()
             {
