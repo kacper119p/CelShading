@@ -1,5 +1,7 @@
 using Kacper119p.CelShading.PostProcessing;
 using UnityEditor;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace com.kacper119p.CelShading.Editor
 {
@@ -11,6 +13,7 @@ namespace com.kacper119p.CelShading.Editor
         private SerializedProperty _depthThreshold;
         private SerializedProperty _normalThreshold;
         private SerializedProperty _colorEdgeDetection;
+        private SerializedProperty _colorThreshold;
 
         void OnEnable()
         {
@@ -19,6 +22,7 @@ namespace com.kacper119p.CelShading.Editor
             _depthThreshold = serializedObject.FindProperty("_depthThreshold");
             _normalThreshold = serializedObject.FindProperty("_normalThreshold");
             _colorEdgeDetection = serializedObject.FindProperty("_colorEdgeDetection");
+            _colorThreshold = serializedObject.FindProperty("_colorThreshold");
         }
 
         public override void OnInspectorGUI()
@@ -29,6 +33,12 @@ namespace com.kacper119p.CelShading.Editor
             EditorGUILayout.PropertyField(_depthThreshold);
             EditorGUILayout.PropertyField(_normalThreshold);
             EditorGUILayout.PropertyField(_colorEdgeDetection);
+            if (_colorEdgeDetection.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(_colorThreshold);
+                EditorGUI.indentLevel--;
+            }
             serializedObject.ApplyModifiedProperties();
         }
     }
