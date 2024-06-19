@@ -19,6 +19,9 @@ namespace Kacper119p.CelShading.PostProcessing
         [SerializeField] private float _depthThreshold = 1f;
         [SerializeField] private float _normalThreshold = 1f;
 
+        [SerializeField] private bool _colorEdgeDetection;
+        [SerializeField, Range(0.0f, 1.0f)]private float _colorThreshold;
+        
         [SerializeField, HideInInspector] private Shader _shader;
 
         private EdgeDetectionRenderPass _renderPass;
@@ -26,6 +29,8 @@ namespace Kacper119p.CelShading.PostProcessing
         private static readonly int ThicknessPropertyID = Shader.PropertyToID("_Sampling_Range");
         private static readonly int DepthThresholdPropertyID = Shader.PropertyToID("_Depth_Threshold");
         private static readonly int NormalThresholdPropertyID = Shader.PropertyToID("_Normal_Threshold");
+        private static readonly int ColorThresholdPropertyID = Shader.PropertyToID("_Color_Threshold");
+        private static LocalKeyword _colorEdgesKeyword;
         private const int CameraTypes = (int)CameraType.Game | (int)CameraType.SceneView;
 
         public Color EdgeColor
@@ -68,14 +73,34 @@ namespace Kacper119p.CelShading.PostProcessing
             }
         }
 
+        public bool ColorEdgeDetection
+        {
+            get => _colorEdgeDetection;
+            set
+            {
+                _colorEdgeDetection = value;
+                _renderPass.Material.SetKeyword(_colorEdgesKeyword, _colorEdgeDetection);
+            }
+        }
+        
+        public float ColorThreshold
+        {
+            get => _colorThreshold;
+            set
+            {
+                _colorThreshold = value;
+                _renderPass.Material.SetFloat(ColorThresholdPropertyID, _colorThreshold);
+            }
+        }
+
         public override void Create()
         {
-            _shader = Shader.Find("Hidden/kacper119p/EdgeDetection");
             if (_shader == null)
             {
-                throw new MissingReferenceException("Edge detection shader not found");
+                _shader = GetShader();
             }
 
+            _colorEdgesKeyword = _shader.keywordSpace.FindKeyword("_COLOR_EDGES_ON");
             _renderPass = new EdgeDetectionRenderPass(_shader)
             {
                 renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing
@@ -103,6 +128,18 @@ namespace Kacper119p.CelShading.PostProcessing
         }
 #endif
 
+        private static Shader GetShader()
+        {
+            Shader result = Shader.Find("Hidden/kacper119p/EdgeDetection");
+            if (result == null)
+            {
+                throw new MissingReferenceException("Edge detection shader not found");
+            }
+
+            return result;
+        }
+
+
         private void SetMaterialProperties()
         {
             if (_renderPass == null) return;
@@ -110,6 +147,8 @@ namespace Kacper119p.CelShading.PostProcessing
             _renderPass.Material.SetFloat(ThicknessPropertyID, _thickness * 0.001f);
             _renderPass.Material.SetFloat(DepthThresholdPropertyID, _depthThreshold * 0.05f);
             _renderPass.Material.SetFloat(NormalThresholdPropertyID, _normalThreshold * 0.05f);
+            _renderPass.Material.SetKeyword(_colorEdgesKeyword, _colorEdgeDetection);
+            _renderPass.Material.SetFloat(ColorThresholdPropertyID, _colorThreshold);
         }
 
         private sealed class EdgeDetectionRenderPass : ScriptableRenderPass

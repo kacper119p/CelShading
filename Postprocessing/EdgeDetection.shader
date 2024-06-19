@@ -6,23 +6,26 @@ Shader "Hidden/kacper119p/EdgeDetection"
         _Sampling_Range ("Sampling Range", Range(0,1)) = 0.001
         _Depth_Threshold ("Depth Treshold", Float) = 0.05
         _Normal_Threshold ("Normal Treshold", Float) = 0.05
+        [Toggle(_Color_Edges)] _Color_Edges ("Color Edges", int) = 0
+        _Color_Threshold ("Color Threshold", Range(0.0, 1.0)) = 0.1
     }
 
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
-    TEXTURE2D_X(_CameraOpaqueTexture);
-    SAMPLER(sampler_CameraOpaqueTexture);
+    #include "Packages/com.kacper119p.cel-shading/ShaderLibrary/Utility.hlsl"
+    CBUFFER_START(UnityPerMaterial)
     TEXTURE2D_X(_CameraDepthTexture);
     SAMPLER(sampler_CameraDepthTexture);
     TEXTURE2D_X(_CameraNormalsTexture);
     SAMPLER(sampler_CameraNormalsTexture);
-
     float4 _BlitTexture_TexelSize;
     float3 _Edge_Color;
     float _Sampling_Range;
     float _Depth_Threshold;
     float _Normal_Threshold;
+    float _Color_Threshold;
+    CBUFFER_END
 
     float4 Fragment(Varyings input) : SV_Target
     {
@@ -73,6 +76,18 @@ Shader "Hidden/kacper119p/EdgeDetection"
 
         float edge = max(step(normalThreshold, normalDifference), step(depthThreshold, depthDifference));
 
+        #if _COLOR_EDGES_ON
+        float3 colorUpRight = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, UpRight);
+        float3 colorDownRight = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, DownRight);
+        float3 colorDownLeft = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, DownLeft);
+        float3 colorUpLeft = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, UpLeft);
+
+        float3 colorDifference1 = GetColorDifference(colorUpRight, colorDownLeft);
+        float3 colorDifference2 = GetColorDifference(colorUpLeft, colorDownRight);
+        float colorDifference = (colorDifference1 + colorDifference2) * 0.5;
+        edge = max(edge, step(_Color_Threshold, colorDifference));
+        #endif
+
         return float4(lerp(color, _Edge_Color, edge), 1);
     }
     ENDHLSL
@@ -91,6 +106,7 @@ Shader "Hidden/kacper119p/EdgeDetection"
             Name "EdgeDetection"
 
             HLSLPROGRAM
+            #pragma shader_feature _COLOR_EDGES_ON
             #pragma vertex Vert
             #pragma fragment Fragment
             ENDHLSL
