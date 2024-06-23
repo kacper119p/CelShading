@@ -135,8 +135,8 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 light_data.normalWS = IN.normalWS;
                 light_data.positionWS = IN.positionWS;
                 light_data.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
-                light_data.glossiness = _Glossiness * SampleTextureTriplanar(_Glossiness_Map, glossinessUV, weights).
-                    rgb;
+                light_data.glossiness
+                    = _Glossiness * SampleTextureTriplanar(_Glossiness_Map, glossinessUV, weights).rgb;
 
                 half3 color = CalculateLight(light_data);
 
