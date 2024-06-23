@@ -50,17 +50,17 @@ float3 GetTriplanarWeights(float3 normalWS, float offset, float power)
 
 float4 SampleTextureTriplanar(sampler2D tex, TriplanarUV uv, float3 weights)
 {
-    float4 x = tex2D(tex, uv.x);
-    float4 y = tex2D(tex, uv.y);
-    float4 z = tex2D(tex, uv.z);
+    const float4 x = tex2D(tex, uv.x);
+    const float4 y = tex2D(tex, uv.y);
+    const float4 z = tex2D(tex, uv.z);
     return x * weights.x + y * weights.y + z * weights.z;
 }
 
 float3 UnpackNormalTriplanar(sampler2D tex, TriplanarUV uv, float3 weights, float3 normalWS)
 {
-    float3 x = UnpackNormal(tex2D(tex, uv.x));
-    float3 y = UnpackNormal(tex2D(tex, uv.y));
-    float3 z = UnpackNormal(tex2D(tex, uv.z));
+    const float3 x = UnpackNormal(tex2D(tex, uv.x));
+    const float3 y = UnpackNormal(tex2D(tex, uv.y));
+    const float3 z = UnpackNormal(tex2D(tex, uv.z));
     return normalize(x * weights.x + y * weights.y + z * weights.z);
 }
 

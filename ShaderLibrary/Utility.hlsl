@@ -8,7 +8,7 @@ float3 ApplyNormalStrength(float3 normal, float strength)
 
 float GetColorDifference(float3 a, float3 b)
 {
-    float redMean = (a.r + b.r) * 0.5;
+    const float redMean = (a.r + b.r) * 0.5;
     float3 difference = a - b;
     difference *= difference;
     return sqrt((2.0 + redMean) * difference.r + 4 * difference.g + (3 - redMean) * difference.b);
