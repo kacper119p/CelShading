@@ -127,7 +127,7 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 #endif
 
                 const TriplanarUV baseMapUV = TRANSFORM_TEX_TRIPLANAR(uv, _BaseMap);
-                const TriplanarUV glossinessUV = TRANSFORM_TEX_TRIPLANAR(uv, _EmissionMap);
+                const TriplanarUV glossinessUV = TRANSFORM_TEX_TRIPLANAR(uv, _Glossiness_Map);
 
                 CelShadingLightData light_data;
                 light_data.shadowCoord = shadowCoord;
