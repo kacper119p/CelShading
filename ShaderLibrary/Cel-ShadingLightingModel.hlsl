@@ -13,7 +13,7 @@ struct CelShadingLightData
     float3 viewDirWS;
     half3 baseColor;
     half3 normalWS;
-    half glossiness;
+    half specular;
 };
 
 half3 CalculateDiffuse(const Light light, const half attenuation, const CelShadingLightData data)
@@ -30,7 +30,7 @@ half3 CalculateDiffuseSoft(const Light light, const half attenuation, const CelS
 half3 CalculateSpecular(const Light light, const half attenuation, const CelShadingLightData data)
 {
     half lightAmount = dot(data.normalWS, normalize(light.direction + data.viewDirWS));
-    lightAmount = pow(saturate(lightAmount), 220.0h / data.glossiness) * attenuation;
+    lightAmount = pow(saturate(lightAmount), 220.0h / data.specular) * attenuation;
     lightAmount = step(0.9h, lightAmount);
     half3 specular = light.color * lightAmount;
     return specular;
