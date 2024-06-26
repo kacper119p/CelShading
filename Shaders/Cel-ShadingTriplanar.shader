@@ -8,8 +8,8 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
         _EmissionMap ("Emission Map", 2D) = "white" {}
         [Normal] _NormalMap ("Normal Map",2D) = "bump"{}
         _NormalStrength ("Normal Strength", Float) = 1
-        _Glossiness ("Glossiness", Float) = 0.5
-        _Glossiness_Map ("Glossiness Map", 2D) = "white" {}
+        _Specular ("Specular", Float) = 0.5
+        _Specular_Map ("Specular Map", 2D) = "white" {}
         _BlendOffset ("Blend Offset", Range(0, 0.5)) = 0.25
         _BlendPower ("Blend Power", Range(1, 8)) = 2
         [KeywordEnum(Hard, Soft)] _Additional_Lights ("Lights", int) = 0
@@ -79,9 +79,9 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 float4 _EmissionMap_ST;
                 sampler2D _BaseMap;
                 float4 _BaseMap_ST;
-                half _Glossiness;
-                sampler2D _Glossiness_Map;
-                float4 _Glossiness_Map_ST;
+                half _Specular;
+                sampler2D _Specular_Map;
+                float4 _Specular_Map_ST;
                 sampler2D _NormalMap;
                 float _NormalStrength;
                 float4 _NormalMap_ST;
@@ -127,7 +127,7 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 #endif
 
                 const TriplanarUV baseMapUV = TRANSFORM_TEX_TRIPLANAR(uv, _BaseMap);
-                const TriplanarUV glossinessUV = TRANSFORM_TEX_TRIPLANAR(uv, _Glossiness_Map);
+                const TriplanarUV specularUV = TRANSFORM_TEX_TRIPLANAR(uv, _Specular_Map);
 
                 CelShadingLightData light_data;
                 light_data.shadowCoord = shadowCoord;
@@ -135,8 +135,8 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 light_data.normalWS = IN.normalWS;
                 light_data.positionWS = IN.positionWS;
                 light_data.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
-                light_data.glossiness
-                    = _Glossiness * SampleTextureTriplanar(_Glossiness_Map, glossinessUV, weights).rgb;
+                light_data.specular
+                    = _Specular * SampleTextureTriplanar(_Specular_Map, specularUV, weights).r;
 
                 half3 color = CalculateLight(light_data);
 
