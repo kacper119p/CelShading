@@ -20,6 +20,7 @@ namespace com.kacper119p.CelShading.Editor
                 ShaderEditorHelper.BeginFoldout(_triplanarOptionsFoldout, "Triplanar mapping options");
             if (_triplanarOptionsFoldout)
             {
+                ShaderEditorHelper.ShaderProperty("_Sampling_Space", materialEditor, properties);
                 ShaderEditorHelper.ShaderProperty("_BlendOffset", materialEditor, properties);
                 ShaderEditorHelper.ShaderProperty("_BlendPower", materialEditor, properties);
             }

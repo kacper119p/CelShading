@@ -13,6 +13,7 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
         [KeywordEnum(Off, On)] _Rim_Highlights ("Rim Highlights", int) = 0
         [HDR] _RimHighlightsColor ("Rim Higlights Color", Color) = (1, 1, 1, 1)
         _RimHighlightsPower ("Rim Higlights Fresnel Power", Float) = 1.0
+        [KeywordEnum(Object, World)] _Sampling_Space ("Sampling Space", int) = 0
         _BlendOffset ("Blend Offset", Range(0, 0.5)) = 0.25
         _BlendPower ("Blend Power", Range(1, 8)) = 2
         [KeywordEnum(Hard, Soft)] _Additional_Lights ("Lights", int) = 0
@@ -39,6 +40,7 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile _ _RIM_HIGHLIGHTS_ON
+            #pragma multi_compile _SAMPLING_SPACE_OBJECT _SAMPLING_SPACE_WORLD
 
             #pragma multi_compile _ADDITIONAL_LIGHTS_HARD _ADDITIONAL_LIGHTS_SOFT
 
@@ -74,6 +76,10 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
                 float3 positionWS : TEXCOORD5;
                 #endif
+
+                #if _SAMPLING_SPACE_OBJECT
+                float3 positionOS : TEXCOORD6;
+                #endif
             };
 
             CBUFFER_START(UnityPerMaterial)
@@ -106,6 +112,9 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 OUT.positionCS = TransformObjectToHClip(IN.positionOS);
                 OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
                 OUT.tangentWS = float4(TransformObjectToWorldDir(IN.tangentOS.xyz), IN.tangentOS.w);
+                #if _SAMPLING_SPACE_OBJECT
+                OUT.positionOS = IN.positionOS;
+                #endif
 
                 return OUT;
             }
@@ -116,7 +125,11 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 IN.tangentWS = normalize(IN.tangentWS);
                 float3x3 tangentToWorldMatrix = CreateTangentToWorld(IN.normalWS, IN.tangentWS.xyz, IN.tangentWS.w);
 
+                #if _SAMPLING_SPACE_OBJECT
+                TriplanarUV uv = GetTriplanarUV(IN.positionOS);
+                #else
                 TriplanarUV uv = GetTriplanarUV(IN.positionWS);
+                #endif
                 float3 weights = GetTriplanarWeights(IN.normalWS, _BlendOffset, _BlendPower);
 
                 TriplanarUV normalMapUV = TRANSFORM_TEX_TRIPLANAR(uv, _NormalMap);

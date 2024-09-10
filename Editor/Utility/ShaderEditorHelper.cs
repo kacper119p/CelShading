@@ -13,7 +13,7 @@ namespace com.kacper119p.CelShading.Editor.Utility
         private const float SpaceHeight = 18;
 
         /// <summary>
-        /// Used as more performant alternative of seeking properties by name in array to System.Ling.
+        /// Used as more performant alternative to System.Ling for seeking properties by name in array.
         /// </summary>
         /// <param name="name">Name of sought property.</param>
         /// <param name="properties">Material properties.</param>
