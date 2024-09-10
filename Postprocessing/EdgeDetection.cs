@@ -20,8 +20,8 @@ namespace Kacper119p.CelShading.PostProcessing
         [SerializeField] private float _normalThreshold = 1f;
 
         [SerializeField] private bool _colorEdgeDetection;
-        [SerializeField, Range(0.0f, 1.0f)]private float _colorThreshold;
-        
+        [SerializeField, Range(0.0f, 1.0f)] private float _colorThreshold;
+
         [SerializeField, HideInInspector] private Shader _shader;
 
         private EdgeDetectionRenderPass _renderPass;
@@ -82,7 +82,7 @@ namespace Kacper119p.CelShading.PostProcessing
                 _renderPass.Material.SetKeyword(_colorEdgesKeyword, _colorEdgeDetection);
             }
         }
-        
+
         public float ColorThreshold
         {
             get => _colorThreshold;

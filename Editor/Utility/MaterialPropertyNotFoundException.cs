@@ -8,11 +8,11 @@ namespace com.kacper119p.CelShading.Editor.Utility
         public MaterialPropertyNotFoundException() : base()
         {
         }
-        
-        public MaterialPropertyNotFoundException(SerializationInfo info , StreamingContext context) : base(info, context)
+
+        public MaterialPropertyNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
-        
+
         public MaterialPropertyNotFoundException(string message) : base(message)
         {
         }
