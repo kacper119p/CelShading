@@ -15,16 +15,16 @@ Shader "Hidden/kacper119p/EdgeDetection"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
     #include "Packages/com.kacper119p.cel-shading/ShaderLibrary/Utility.hlsl"
     CBUFFER_START(UnityPerMaterial)
-    TEXTURE2D_X(_CameraDepthTexture);
-    SAMPLER(sampler_CameraDepthTexture);
-    TEXTURE2D_X(_CameraNormalsTexture);
-    SAMPLER(sampler_CameraNormalsTexture);
-    float4 _BlitTexture_TexelSize;
-    float3 _Edge_Color;
-    float _Sampling_Range;
-    float _Depth_Threshold;
-    float _Normal_Threshold;
-    float _Color_Threshold;
+        TEXTURE2D_X(_CameraDepthTexture);
+        SAMPLER(sampler_CameraDepthTexture);
+        TEXTURE2D_X(_CameraNormalsTexture);
+        SAMPLER(sampler_CameraNormalsTexture);
+        float4 _BlitTexture_TexelSize;
+        float3 _Edge_Color;
+        float _Sampling_Range;
+        float _Depth_Threshold;
+        float _Normal_Threshold;
+        float _Color_Threshold;
     CBUFFER_END
 
     float4 Fragment(Varyings input) : SV_Target

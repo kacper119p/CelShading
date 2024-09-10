@@ -10,6 +10,9 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
         _NormalStrength ("Normal Strength", Float) = 1
         _Specular ("Specular", Float) = 0.5
         _Specular_Map ("Specular Map", 2D) = "white" {}
+        [KeywordEnum(Off, On)] _Rim_Highlights ("Rim Highlights", int) = 0
+        [HDR] _RimHighlightsColor ("Rim Higlights Color", Color) = (1, 1, 1, 1)
+        _RimHighlightsPower ("Rim Higlights Fresnel Power", Float) = 1.0
         _BlendOffset ("Blend Offset", Range(0, 0.5)) = 0.25
         _BlendPower ("Blend Power", Range(1, 8)) = 2
         [KeywordEnum(Hard, Soft)] _Additional_Lights ("Lights", int) = 0
@@ -35,6 +38,7 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _ _RIM_HIGHLIGHTS_ON
 
             #pragma multi_compile _ADDITIONAL_LIGHTS_HARD _ADDITIONAL_LIGHTS_SOFT
 
@@ -85,6 +89,8 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 sampler2D _NormalMap;
                 float _NormalStrength;
                 float4 _NormalMap_ST;
+                half3 _RimHighlightsColor;
+                float _RimHighlightsPower;
                 float _BlendOffset;
                 float _BlendPower;
             CBUFFER_END
@@ -129,16 +135,20 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 const TriplanarUV baseMapUV = TRANSFORM_TEX_TRIPLANAR(uv, _BaseMap);
                 const TriplanarUV specularUV = TRANSFORM_TEX_TRIPLANAR(uv, _Specular_Map);
 
-                CelShadingLightData light_data;
-                light_data.shadowCoord = shadowCoord;
-                light_data.baseColor = _BaseColor * SampleTextureTriplanar(_BaseMap, baseMapUV, weights).rgb;
-                light_data.normalWS = IN.normalWS;
-                light_data.positionWS = IN.positionWS;
-                light_data.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
-                light_data.specular
+                CelShadingLightData lightData;
+                lightData.shadowCoord = shadowCoord;
+                lightData.baseColor = _BaseColor * SampleTextureTriplanar(_BaseMap, baseMapUV, weights).rgb;
+                lightData.normalWS = IN.normalWS;
+                lightData.positionWS = IN.positionWS;
+                lightData.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
+                lightData.specular
                     = _Specular * SampleTextureTriplanar(_Specular_Map, specularUV, weights).r;
+                #if _RIM_HIGHLIGHTS_ON
+                lightData.rimHiglightsColor = _RimHighlightsColor;
+                lightData.rimHighlightsPower = _RimHighlightsPower;
+                #endif
 
-                half3 color = CalculateLight(light_data);
+                half3 color = CalculateLight(lightData);
 
                 TriplanarUV emissionUV = TRANSFORM_TEX_TRIPLANAR(uv, _EmissionMap);
                 half3 emission = _EmissionColor * SampleTextureTriplanar(_EmissionMap, emissionUV, weights).rgb;

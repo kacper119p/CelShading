@@ -2,6 +2,7 @@
 #define KACPER119P_SHADERS_CEL_SHADING_LIGHTING_MODEL_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+#include "Packages/com.kacper119p.cel-shading/ShaderLibrary/Utility.hlsl"
 
 /**
  * \brief Parameters for lighting calculation.
@@ -14,19 +15,44 @@ struct CelShadingLightData
     half3 baseColor;
     half3 normalWS;
     half specular;
+    #if _RIM_HIGHLIGHTS_ON
+    half3 rimHiglightsColor;
+    float rimHighlightsPower;
+    #endif
 };
 
+/**
+ * \brief Calculate cel-shaded diffuse color with hard light cutoff.
+ * \param light Light which influence is calculated.
+ * \param attenuation Total light attenuation of light which influence is calculated. 
+ * \param data Surface Parameters.
+ * \return 
+ */
 half3 CalculateDiffuse(const Light light, const half attenuation, const CelShadingLightData data)
 {
     return step(0.1h, dot(data.normalWS, light.direction) * attenuation) * light.color;
 }
 
+/**
+ * \brief Calculate cel-shaded diffuse color without light cutoff.
+ * \param light Light which influence is calculated.
+ * \param attenuation Total light attenuation of light which influence is calculated. 
+ * \param data Surface Parameters.
+ * \return 
+ */
 half3 CalculateDiffuseSoft(const Light light, const half attenuation, const CelShadingLightData data)
 {
     const half3 attenuatedColor = light.color * attenuation;
     return attenuatedColor * saturate(dot(data.normalWS, light.direction));
 }
 
+/**
+ * \brief Calculate cel-shaded specular color.
+ * \param light Light which influence is calculated.
+ * \param attenuation Total light attenuation of light which influence is calculated. 
+ * \param data Surface Parameters.
+ * \return 
+ */
 half3 CalculateSpecular(const Light light, const half attenuation, const CelShadingLightData data)
 {
     half lightAmount = dot(data.normalWS, normalize(light.direction + data.viewDirWS));
@@ -35,6 +61,25 @@ half3 CalculateSpecular(const Light light, const half attenuation, const CelShad
     half3 specular = light.color * lightAmount;
     return specular;
 }
+
+#if _RIM_HIGHLIGHTS_ON
+/**
+ * \brief Calculates rim highlight color from given light data.
+ * \param lightData Surface parameters.
+ * \return Rim highlight color.
+ */
+half3 CalculateRimHiglight(Light light, CelShadingLightData lightData)
+{
+    float Result = GetFresnelValue(
+        lightData.viewDirWS,
+        lightData.normalWS,
+        lightData.rimHighlightsPower);
+    
+    Result *= saturate(dot(-light.direction, lightData.normalWS));
+    Result = step(0.1, Result);
+    return Result * lightData.rimHiglightsColor;
+}
+#endif
 
 /**
  * \brief Calculates light and returns calculated color of the surface.
@@ -74,7 +119,11 @@ half3 CalculateLight(CelShadingLightData lightData)
 
     lightDiffuse = lightDiffuse + ambientLight;
 
-    return lightDiffuse * lightData.baseColor + specular;
-}
+    half3 result = lightDiffuse * lightData.baseColor + specular;
 
+    #if _RIM_HIGHLIGHTS_ON
+    result += CalculateRimHiglight(light, lightData);
+    #endif
+    return result;
+}
 #endif
