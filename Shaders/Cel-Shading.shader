@@ -7,9 +7,12 @@ Shader "Cel-Shading/Cel-Shading"
         [HDR] _EmissionColor ("Emission Color", Color) = (0, 0, 0, 1)
         _EmissionMap ("Emission Map", 2D) = "white" {}
         [Normal] _NormalMap ("Normal Map",2D) = "bump"{}
-        _NormalStrength ("Normal Strength", Float) = 1
+        _NormalStrength ("Normal Strength", Float) = 1.0
         _Specular ("Specular", Float) = 0.5
         _Specular_Map ("Specular Map", 2D) = "white" {}
+        [KeywordEnum(Off, On)] _Rim_Highlights ("Rim Highlights", int) = 0
+        [HDR] _RimHighlightsColor ("Rim Higlights Color", Color) = (1, 1, 1, 1)
+        _RimHighlightsPower ("Rim Higlights Fresnel Power", Float) = 1.0
         [KeywordEnum(Hard, Soft)] _Additional_Lights ("Lights", int) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2.0
     }
@@ -33,7 +36,8 @@ Shader "Cel-Shading/Cel-Shading"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
-            
+            #pragma multi_compile _ _RIM_HIGHLIGHTS_ON
+
             #pragma multi_compile _ADDITIONAL_LIGHTS_HARD _ADDITIONAL_LIGHTS_SOFT
 
             #pragma vertex vert
@@ -84,6 +88,8 @@ Shader "Cel-Shading/Cel-Shading"
                 sampler2D _NormalMap;
                 float _NormalStrength;
                 float4 _NormalMap_ST;
+                half3 _RimHighlightsColor;
+                float _RimHighlightsPower;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -124,15 +130,20 @@ Shader "Cel-Shading/Cel-Shading"
                 const float2 baseMapUV = TRANSFORM_TEX(IN.uv, _BaseMap);
                 const float2 specularUV = TRANSFORM_TEX(IN.uv, _Specular_Map);
 
-                CelShadingLightData light_data;
-                light_data.shadowCoord = shadowCoord;
-                light_data.baseColor = _BaseColor * tex2D(_BaseMap, baseMapUV).rgb;
-                light_data.normalWS = IN.normalWS;
-                light_data.positionWS = IN.positionWS;
-                light_data.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
-                light_data.specular = _Specular * tex2D(_Specular_Map, specularUV).r;
+                CelShadingLightData lightData;
+                lightData.shadowCoord = shadowCoord;
+                lightData.baseColor = _BaseColor * tex2D(_BaseMap, baseMapUV).rgb;
+                lightData.normalWS = IN.normalWS;
+                lightData.positionWS = IN.positionWS;
+                lightData.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
+                lightData.specular = _Specular * tex2D(_Specular_Map, specularUV).r;
+                #if _RIM_HIGHLIGHTS_ON
+                lightData.rimHiglightsColor = _RimHighlightsColor;
+                lightData.rimHighlightsPower = _RimHighlightsPower;
+                #endif
 
-                half3 color = CalculateLight(light_data);
+
+                half3 color = CalculateLight(lightData);
 
                 float2 emissionUV = TRANSFORM_TEX(IN.uv, _EmissionMap);
                 half3 emission = _EmissionColor * tex2D(_EmissionMap, emissionUV).rgb;
