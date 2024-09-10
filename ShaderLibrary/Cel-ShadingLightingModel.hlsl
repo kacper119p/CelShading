@@ -2,7 +2,9 @@
 #define KACPER119P_SHADERS_CEL_SHADING_LIGHTING_MODEL_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+#if _RIM_HIGHLIGHTS_ON
 #include "Packages/com.kacper119p.cel-shading/ShaderLibrary/Utility.hlsl"
+#endif
 
 /**
  * \brief Parameters for lighting calculation.
