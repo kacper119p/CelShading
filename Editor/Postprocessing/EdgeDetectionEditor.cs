@@ -1,7 +1,5 @@
 using Kacper119p.CelShading.PostProcessing;
 using UnityEditor;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace com.kacper119p.CelShading.Editor
 {

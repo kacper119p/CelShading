@@ -9,7 +9,7 @@ Shader "Cel-Shading/Cel-Shading"
         [Normal] _NormalMap ("Normal Map",2D) = "bump"{}
         _NormalStrength ("Normal Strength", Float) = 1.0
         _Specular ("Specular", Float) = 0.5
-        _Specular_Map ("Specular Map", 2D) = "white" {}
+        _SpecularMap ("Specular Map", 2D) = "white" {}
         [KeywordEnum(Off, On)] _Rim_Highlights ("Rim Highlights", int) = 0
         [HDR] _RimHighlightsColor ("Rim Higlights Color", Color) = (1, 1, 1, 1)
         _RimHighlightsPower ("Rim Higlights Fresnel Power", Float) = 1.0
@@ -83,7 +83,7 @@ Shader "Cel-Shading/Cel-Shading"
                 sampler2D _BaseMap;
                 float4 _BaseMap_ST;
                 half _Specular;
-                sampler2D _Specular_Map;
+                sampler2D _SpecularMap;
                 float4 _Specular_Map_ST;
                 sampler2D _NormalMap;
                 float _NormalStrength;
@@ -136,7 +136,7 @@ Shader "Cel-Shading/Cel-Shading"
                 lightData.normalWS = IN.normalWS;
                 lightData.positionWS = IN.positionWS;
                 lightData.viewDirWS = normalize(GetWorldSpaceViewDir(IN.positionWS));
-                lightData.specular = _Specular * tex2D(_Specular_Map, specularUV).r;
+                lightData.specular = _Specular * tex2D(_SpecularMap, specularUV).r;
                 #if _RIM_HIGHLIGHTS_ON
                 lightData.rimHiglightsColor = _RimHighlightsColor;
                 lightData.rimHighlightsPower = _RimHighlightsPower;
@@ -278,4 +278,5 @@ Shader "Cel-Shading/Cel-Shading"
 
     }
     FallBack "Hidden/Core/FallbackError"
+    CustomEditor "com.kacper119p.CelShading.Editor.CelShadingEditor"
 }
