@@ -3,12 +3,12 @@ using UnityEditor;
 
 namespace com.kacper119p.CelShading.Editor
 {
-    public static class CelShadingEditorsCommon
+    internal static class CelShadingEditorsCommon
     {
         private static bool _surfaceInputsFoldout = true;
         private static bool _materialOptionsFoldout = true;
 
-        public static void DrawSurfaceInputs(MaterialEditor materialEditor, MaterialProperty[] properties)
+        internal static void DrawSurfaceInputs(MaterialEditor materialEditor, MaterialProperty[] properties)
         {
             _surfaceInputsFoldout = ShaderEditorHelper.BeginFoldout(_surfaceInputsFoldout, "Surface Inputs");
             if (_surfaceInputsFoldout)
@@ -45,7 +45,7 @@ namespace com.kacper119p.CelShading.Editor
             ShaderEditorHelper.EndFoldout(_surfaceInputsFoldout);
         }
 
-        public static void DrawMaterialOptions(MaterialEditor materialEditor, MaterialProperty[] properties)
+        internal static void DrawMaterialOptions(MaterialEditor materialEditor, MaterialProperty[] properties)
         {
             _materialOptionsFoldout = ShaderEditorHelper.BeginFoldout(_materialOptionsFoldout, "Material options");
             if (_materialOptionsFoldout)

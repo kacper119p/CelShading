@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace com.kacper119p.CelShading.Editor
 {
-    public class TriplanarCelShadingEditor : ShaderGUI
+    internal class TriplanarCelShadingEditor : ShaderGUI
     {
         private static bool _triplanarOptionsFoldout = true;
 
