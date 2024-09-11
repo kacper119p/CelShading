@@ -29,6 +29,7 @@ Shader "Hidden/kacper119p/EdgeDetection"
 
     float4 Fragment(Varyings input) : SV_Target
     {
+        //Uses Roberts cross operator for edge detection
         float aspectRatio = _ScreenParams.x / _ScreenParams.y;
         float2 upRight = input.texcoord + float2(1, aspectRatio) * _Sampling_Range;
         float2 downRight = input.texcoord + float2(1, -aspectRatio) * _Sampling_Range;
@@ -61,6 +62,7 @@ Shader "Hidden/kacper119p/EdgeDetection"
         float3 normalDownLeft = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, downLeft);
         float3 normalUpLeft = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, upLeft);
 
+        //Modulating thresholds prevents surfaces being close to perpendicular to view Direction from being marked as edges.
         float3 worldPos = ComputeWorldSpacePosition(input.texcoord, depth, UNITY_MATRIX_I_VP);
         float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
         float nDotV = 1 - dot(normal, viewDir);
