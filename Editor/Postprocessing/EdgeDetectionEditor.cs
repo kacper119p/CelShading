@@ -4,7 +4,7 @@ using UnityEditor;
 namespace com.kacper119p.CelShading.Editor
 {
     [CustomEditor(typeof(EdgeDetection))]
-    public class EdgeDetectionEditor : UnityEditor.Editor
+    internal class EdgeDetectionEditor : UnityEditor.Editor
     {
         private SerializedProperty _edgeColor;
         private SerializedProperty _thickness;
@@ -13,7 +13,7 @@ namespace com.kacper119p.CelShading.Editor
         private SerializedProperty _colorEdgeDetection;
         private SerializedProperty _colorThreshold;
 
-        void OnEnable()
+        private void OnEnable()
         {
             _edgeColor = serializedObject.FindProperty("_edgeColor");
             _thickness = serializedObject.FindProperty("_thickness");

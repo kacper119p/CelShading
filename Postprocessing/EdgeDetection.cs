@@ -12,14 +12,23 @@ namespace Kacper119p.CelShading.PostProcessing
     /// </summary>
     public sealed class EdgeDetection : ScriptableRendererFeature
     {
+        [Tooltip("Color of edge lines.")]
         [SerializeField, ColorUsage(false, true)]
         private Color _edgeColor = new Color(0, 0, 0, 1);
 
+        [Tooltip("Thickness of edge lines.")]
         [SerializeField] private float _thickness = 1f;
+
+        [Tooltip("Threshold for detecting edges using depth buffer.")]
         [SerializeField] private float _depthThreshold = 1f;
+
+        [Tooltip("Threshold for detecting edges using normal buffer.")]
         [SerializeField] private float _normalThreshold = 1f;
 
+        [Tooltip("Should check for edges using scene color?")]
         [SerializeField] private bool _colorEdgeDetection;
+
+        [Tooltip("Threshold for detecting edges using scene color.")]
         [SerializeField, Range(0.0f, 1.0f)] private float _colorThreshold;
 
         [SerializeField, HideInInspector] private Shader _shader;
@@ -33,6 +42,9 @@ namespace Kacper119p.CelShading.PostProcessing
         private static LocalKeyword _colorEdgesKeyword;
         private const int CameraTypes = (int)CameraType.Game | (int)CameraType.SceneView;
 
+        /// <summary>
+        /// Color of edge lines.
+        /// </summary>
         public Color EdgeColor
         {
             get => _edgeColor;
@@ -43,6 +55,9 @@ namespace Kacper119p.CelShading.PostProcessing
             }
         }
 
+        /// <summary>
+        /// Thickness of edge lines.
+        /// </summary>
         public float Thickness
         {
             get => _thickness;
@@ -53,6 +68,9 @@ namespace Kacper119p.CelShading.PostProcessing
             }
         }
 
+        /// <summary>
+        /// Threshold for detecting edges using depth buffer.
+        /// </summary>
         public float DepthThreshold
         {
             get => _depthThreshold;
@@ -63,6 +81,9 @@ namespace Kacper119p.CelShading.PostProcessing
             }
         }
 
+        /// <summary>
+        /// Threshold for detecting edges using normal buffer.
+        /// </summary>
         public float NormalThreshold
         {
             get => _normalThreshold;
@@ -73,6 +94,9 @@ namespace Kacper119p.CelShading.PostProcessing
             }
         }
 
+        /// <summary>
+        /// Should check for edges using scene color?
+        /// </summary>
         public bool ColorEdgeDetection
         {
             get => _colorEdgeDetection;
@@ -83,6 +107,9 @@ namespace Kacper119p.CelShading.PostProcessing
             }
         }
 
+        /// <summary>
+        /// Threshold for detecting edges using scene color.
+        /// </summary>
         public float ColorThreshold
         {
             get => _colorThreshold;
