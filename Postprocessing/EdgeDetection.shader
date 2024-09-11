@@ -29,36 +29,37 @@ Shader "Hidden/kacper119p/EdgeDetection"
 
     float4 Fragment(Varyings input) : SV_Target
     {
-        float2 UpRight = input.texcoord + float2(1, 1) * _Sampling_Range;
-        float2 DownRight = input.texcoord + float2(1, -1) * _Sampling_Range;
-        float2 DownLeft = input.texcoord + float2(-1, -1) * _Sampling_Range;
-        float2 UpLeft = input.texcoord + float2(-1, 1) * _Sampling_Range;
+        float aspectRatio = _ScreenParams.x / _ScreenParams.y;
+        float2 upRight = input.texcoord + float2(1, aspectRatio) * _Sampling_Range;
+        float2 downRight = input.texcoord + float2(1, -aspectRatio) * _Sampling_Range;
+        float2 downLeft = input.texcoord + float2(-1, -aspectRatio) * _Sampling_Range;
+        float2 upLeft = input.texcoord + float2(-1, aspectRatio) * _Sampling_Range;
         float3 color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, input.texcoord).rgb;
 
         #if UNITY_REVERSED_Z
         float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, input.texcoord).r;
-        float depthUpRight = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, UpRight).r;
-        float depthDownRight = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, DownRight).r;
-        float depthDownLeft = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, DownLeft).r;
-        float depthUpLeft = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, UpLeft).r;
+        float depthUpRight = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, upRight).r;
+        float depthDownRight = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, downRight).r;
+        float depthDownLeft = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, downLeft).r;
+        float depthUpLeft = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, upLeft).r;
         #else
         float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1,
             SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, input.texcoord).r);
         float depthUpRight = lerp(UNITY_NEAR_CLIP_VALUE, 1,
-            SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, UpRight).r);
+            SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, upRight).r);
         float depthDownRight = lerp(UNITY_NEAR_CLIP_VALUE, 1,
-            SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, DownRight).r);
+            SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, downRight).r);
         float depthDownLeft = lerp(UNITY_NEAR_CLIP_VALUE, 1,
-            SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, DownLeft).r);
+            SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, downLeft).r);
         float depthUpLeft = lerp(UNITY_NEAR_CLIP_VALUE, 1,
-            SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, UpLeft).r);
+            SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, upLeft).r);
         #endif
 
         float3 normal = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, input.texcoord);
-        float3 normalUpRight = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, UpRight);
-        float3 normalDownRight = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, DownRight);
-        float3 normalDownLeft = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, DownLeft);
-        float3 normalUpLeft = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, UpLeft);
+        float3 normalUpRight = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, upRight);
+        float3 normalDownRight = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, downRight);
+        float3 normalDownLeft = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, downLeft);
+        float3 normalUpLeft = SAMPLE_TEXTURE2D(_CameraNormalsTexture, sampler_CameraNormalsTexture, upLeft);
 
         float3 worldPos = ComputeWorldSpacePosition(input.texcoord, depth, UNITY_MATRIX_I_VP);
         float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
@@ -77,10 +78,10 @@ Shader "Hidden/kacper119p/EdgeDetection"
         float edge = max(step(normalThreshold, normalDifference), step(depthThreshold, depthDifference));
 
         #if _COLOR_EDGES_ON
-        float3 colorUpRight = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, UpRight);
-        float3 colorDownRight = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, DownRight);
-        float3 colorDownLeft = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, DownLeft);
-        float3 colorUpLeft = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, UpLeft);
+        float3 colorUpRight = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, upRight);
+        float3 colorDownRight = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, downRight);
+        float3 colorDownLeft = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, downLeft);
+        float3 colorUpLeft = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, upLeft);
 
         float3 colorDifference1 = GetColorDifference(colorUpRight, colorDownLeft);
         float3 colorDifference2 = GetColorDifference(colorUpLeft, colorDownRight);
