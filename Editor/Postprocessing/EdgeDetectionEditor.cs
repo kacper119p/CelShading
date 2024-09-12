@@ -12,6 +12,7 @@ namespace com.kacper119p.CelShading.Editor
         private SerializedProperty _normalThreshold;
         private SerializedProperty _colorEdgeDetection;
         private SerializedProperty _colorThreshold;
+        private SerializedProperty _renderPassEvent;
 
         private void OnEnable()
         {
@@ -21,6 +22,7 @@ namespace com.kacper119p.CelShading.Editor
             _normalThreshold = serializedObject.FindProperty("_normalThreshold");
             _colorEdgeDetection = serializedObject.FindProperty("_colorEdgeDetection");
             _colorThreshold = serializedObject.FindProperty("_colorThreshold");
+            _renderPassEvent = serializedObject.FindProperty("_renderPassEvent");
         }
 
         public override void OnInspectorGUI()
@@ -37,6 +39,7 @@ namespace com.kacper119p.CelShading.Editor
                 EditorGUILayout.PropertyField(_colorThreshold);
                 EditorGUI.indentLevel--;
             }
+            EditorGUILayout.PropertyField(_renderPassEvent);
             serializedObject.ApplyModifiedProperties();
         }
     }

@@ -1,9 +1,11 @@
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Serialization;
 
 namespace Kacper119p.CelShading.PostProcessing
 {
@@ -31,6 +33,9 @@ namespace Kacper119p.CelShading.PostProcessing
         [Tooltip("Threshold for detecting edges using scene color.")]
         [SerializeField, Range(0.0f, 1.0f)] private float _colorThreshold;
 
+        [Tooltip("When to render outlines?")]
+        [SerializeField] private EdgeDetectionRenderPassEvent _renderPassEvent;
+
         [SerializeField, HideInInspector] private Shader _shader;
 
         private EdgeDetectionRenderPass _renderPass;
@@ -41,6 +46,10 @@ namespace Kacper119p.CelShading.PostProcessing
         private static readonly int ColorThresholdPropertyID = Shader.PropertyToID("_Color_Threshold");
         private static LocalKeyword _colorEdgesKeyword;
         private const int CameraTypes = (int)CameraType.Game | (int)CameraType.SceneView;
+
+        private const float DefaultThickness = 0.001f;
+        private const float DefaultDepthThreshold = 0.05f;
+        private const float DefaultNormalThreshold = 0.05f;
 
         /// <summary>
         /// Color of edge lines.
@@ -64,7 +73,7 @@ namespace Kacper119p.CelShading.PostProcessing
             set
             {
                 _thickness = value;
-                _renderPass.Material.SetFloat(ThicknessPropertyID, _thickness * 0.001f);
+                _renderPass.Material.SetFloat(ThicknessPropertyID, _thickness * DefaultThickness);
             }
         }
 
@@ -77,7 +86,7 @@ namespace Kacper119p.CelShading.PostProcessing
             set
             {
                 _depthThreshold = value;
-                _renderPass.Material.SetFloat(DepthThresholdPropertyID, _depthThreshold * 0.05f);
+                _renderPass.Material.SetFloat(DepthThresholdPropertyID, _depthThreshold * DefaultDepthThreshold);
             }
         }
 
@@ -90,7 +99,7 @@ namespace Kacper119p.CelShading.PostProcessing
             set
             {
                 _normalThreshold = value;
-                _renderPass.Material.SetFloat(NormalThresholdPropertyID, _normalThreshold * 0.05f);
+                _renderPass.Material.SetFloat(NormalThresholdPropertyID, _normalThreshold * DefaultNormalThreshold);
             }
         }
 
@@ -120,6 +129,19 @@ namespace Kacper119p.CelShading.PostProcessing
             }
         }
 
+        /// <summary>
+        /// When to render outlines?
+        /// </summary>
+        public EdgeDetectionRenderPassEvent RenderPassEvent
+        {
+            get => _renderPassEvent;
+            set
+            {
+                _renderPassEvent = value;
+                _renderPass.renderPassEvent = CastRenderPassEvent(_renderPassEvent);
+            }
+        }
+
         public override void Create()
         {
             if (_shader == null)
@@ -130,7 +152,7 @@ namespace Kacper119p.CelShading.PostProcessing
             _colorEdgesKeyword = _shader.keywordSpace.FindKeyword("_COLOR_EDGES_ON");
             _renderPass = new EdgeDetectionRenderPass(_shader)
             {
-                renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing
+                renderPassEvent = CastRenderPassEvent(_renderPassEvent)
             };
             SetMaterialProperties();
         }
@@ -152,6 +174,10 @@ namespace Kacper119p.CelShading.PostProcessing
         private void OnValidate()
         {
             SetMaterialProperties();
+            if (_renderPass != null)
+            {
+                _renderPass.renderPassEvent = CastRenderPassEvent(_renderPassEvent);
+            }
         }
 #endif
 
@@ -171,11 +197,31 @@ namespace Kacper119p.CelShading.PostProcessing
         {
             if (_renderPass == null) return;
             _renderPass.Material.SetColor(EdgeColorPropertyID, _edgeColor);
-            _renderPass.Material.SetFloat(ThicknessPropertyID, _thickness * 0.001f);
-            _renderPass.Material.SetFloat(DepthThresholdPropertyID, _depthThreshold * 0.05f);
-            _renderPass.Material.SetFloat(NormalThresholdPropertyID, _normalThreshold * 0.05f);
+            _renderPass.Material.SetFloat(ThicknessPropertyID, _thickness * DefaultThickness);
+            _renderPass.Material.SetFloat(DepthThresholdPropertyID, _depthThreshold * DefaultDepthThreshold);
+            _renderPass.Material.SetFloat(NormalThresholdPropertyID, _normalThreshold * DefaultNormalThreshold);
             _renderPass.Material.SetKeyword(_colorEdgesKeyword, _colorEdgeDetection);
             _renderPass.Material.SetFloat(ColorThresholdPropertyID, _colorThreshold);
+        }
+
+        private static RenderPassEvent CastRenderPassEvent(EdgeDetectionRenderPassEvent renderPassEvent) =>
+            renderPassEvent switch
+            {
+                EdgeDetectionRenderPassEvent.BeforeRenderingPostProcessing
+                    => UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRenderingPostProcessing,
+                EdgeDetectionRenderPassEvent.AfterRenderingPostProcessing
+                    => UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingPostProcessing,
+                _ => throw new ArgumentException("Invalid value")
+            };
+
+
+        /// <summary>
+        /// When to render Edge Detection Scriptable Render Pass?
+        /// </summary>
+        public enum EdgeDetectionRenderPassEvent
+        {
+            BeforeRenderingPostProcessing,
+            AfterRenderingPostProcessing
         }
 
         private sealed class EdgeDetectionRenderPass : ScriptableRenderPass
