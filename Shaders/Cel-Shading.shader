@@ -278,5 +278,5 @@ Shader "Cel-Shading/Cel-Shading"
 
     }
     FallBack "Hidden/Core/FallbackError"
-    CustomEditor "com.kacper119p.CelShading.Editor.CelShadingEditor"
+    CustomEditor "com.kacper119p.CelShading.Editor.Shaders.CelShadingEditor"
 }
