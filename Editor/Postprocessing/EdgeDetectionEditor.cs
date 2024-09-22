@@ -1,7 +1,7 @@
 using Kacper119p.CelShading.PostProcessing;
 using UnityEditor;
 
-namespace com.kacper119p.CelShading.Editor
+namespace com.kacper119p.CelShading.Editor.Postprocessing
 {
     [CustomEditor(typeof(EdgeDetection))]
     internal class EdgeDetectionEditor : UnityEditor.Editor

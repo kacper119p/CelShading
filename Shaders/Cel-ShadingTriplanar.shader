@@ -296,5 +296,5 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
 
     }
     FallBack "Hidden/Core/FallbackError"
-    CustomEditor "com.kacper119p.CelShading.Editor.TriplanarCelShadingEditor"
+    CustomEditor "com.kacper119p.CelShading.Editor.Shaders.TriplanarCelShadingEditor"
 }

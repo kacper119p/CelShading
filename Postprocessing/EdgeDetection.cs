@@ -146,7 +146,15 @@ namespace Kacper119p.CelShading.PostProcessing
         {
             if (_shader == null)
             {
-                _shader = GetShader();
+                try
+                {
+                    _shader = GetShader();
+                }
+                //Exception sometimes is thrown, seems to have no negative effects from user perspective
+                catch (MissingReferenceException)
+                {
+                    return;
+                }
             }
 
             _colorEdgesKeyword = _shader.keywordSpace.FindKeyword("_COLOR_EDGES_ON");

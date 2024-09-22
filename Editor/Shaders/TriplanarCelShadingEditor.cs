@@ -1,7 +1,7 @@
 ﻿using com.kacper119p.CelShading.Editor.Utility;
 using UnityEditor;
 
-namespace com.kacper119p.CelShading.Editor
+namespace com.kacper119p.CelShading.Editor.Shaders
 {
     internal class TriplanarCelShadingEditor : ShaderGUI
     {

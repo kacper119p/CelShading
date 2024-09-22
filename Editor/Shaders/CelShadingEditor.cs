@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 
-namespace com.kacper119p.CelShading.Editor
+namespace com.kacper119p.CelShading.Editor.Shaders
 {
     internal class CelShadingEditor : ShaderGUI
     {
