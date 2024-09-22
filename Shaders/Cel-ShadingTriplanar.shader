@@ -11,8 +11,8 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
         _Specular ("Specular", Float) = 0.5
         _SpecularMap ("Specular Map", 2D) = "white" {}
         [KeywordEnum(Off, On)] _Rim_Highlights ("Rim Highlights", int) = 0
-        [HDR] _RimHighlightsColor ("Rim Higlights Color", Color) = (1, 1, 1, 1)
-        _RimHighlightsPower ("Rim Higlights Fresnel Power", Float) = 1.0
+        [HDR] _RimHighlightsColor ("Rim Highlights Color", Color) = (1, 1, 1, 1)
+        _RimHighlightsPower ("Rim Highlights Fresnel Power", Float) = 1.0
         [KeywordEnum(Object, World)] _Sampling_Space ("Sampling Space", int) = 0
         _BlendOffset ("Blend Offset", Range(0, 0.5)) = 0.25
         _BlendPower ("Blend Power", Range(1, 8)) = 2
