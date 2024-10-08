@@ -130,7 +130,12 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 #else
                 TriplanarUV uv = GetTriplanarUV(IN.positionWS);
                 #endif
+                #if _SAMPLING_SPACE_OBJECT
+                float3 normalOS = TransformWorldToObjectNormal(IN.normalWS);
+                float3 weights = GetTriplanarWeights(normalOS, _BlendOffset, _BlendPower);
+                #else
                 float3 weights = GetTriplanarWeights(IN.normalWS, _BlendOffset, _BlendPower);
+                #endif
 
                 TriplanarUV normalMapUV = TRANSFORM_TEX_TRIPLANAR(uv, _NormalMap);
                 float3 normalMap = UnpackNormalTriplanar(_NormalMap, normalMapUV, weights, IN.normalWS);
