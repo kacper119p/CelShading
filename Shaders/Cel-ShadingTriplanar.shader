@@ -11,8 +11,8 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
         _Specular ("Specular", Float) = 0.5
         _SpecularMap ("Specular Map", 2D) = "white" {}
         [KeywordEnum(Off, On)] _Rim_Highlights ("Rim Highlights", int) = 0
-        [HDR] _RimHighlightsColor ("Rim Higlights Color", Color) = (1, 1, 1, 1)
-        _RimHighlightsPower ("Rim Higlights Fresnel Power", Float) = 1.0
+        [HDR] _RimHighlightsColor ("Rim Highlights Color", Color) = (1, 1, 1, 1)
+        _RimHighlightsPower ("Rim Highlights Fresnel Power", Float) = 1.0
         [KeywordEnum(Object, World)] _Sampling_Space ("Sampling Space", int) = 0
         _BlendOffset ("Blend Offset", Range(0, 0.5)) = 0.25
         _BlendPower ("Blend Power", Range(1, 8)) = 2
@@ -130,7 +130,12 @@ Shader "Cel-Shading/Cel-Shading Triplanar"
                 #else
                 TriplanarUV uv = GetTriplanarUV(IN.positionWS);
                 #endif
+                #if _SAMPLING_SPACE_OBJECT
+                float3 normalOS = TransformWorldToObjectNormal(IN.normalWS);
+                float3 weights = GetTriplanarWeights(normalOS, _BlendOffset, _BlendPower);
+                #else
                 float3 weights = GetTriplanarWeights(IN.normalWS, _BlendOffset, _BlendPower);
+                #endif
 
                 TriplanarUV normalMapUV = TRANSFORM_TEX_TRIPLANAR(uv, _NormalMap);
                 float3 normalMap = UnpackNormalTriplanar(_NormalMap, normalMapUV, weights, IN.normalWS);

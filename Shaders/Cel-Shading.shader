@@ -11,8 +11,8 @@ Shader "Cel-Shading/Cel-Shading"
         _Specular ("Specular", Float) = 0.5
         _SpecularMap ("Specular Map", 2D) = "white" {}
         [KeywordEnum(Off, On)] _Rim_Highlights ("Rim Highlights", int) = 0
-        [HDR] _RimHighlightsColor ("Rim Higlights Color", Color) = (1, 1, 1, 1)
-        _RimHighlightsPower ("Rim Higlights Fresnel Power", Float) = 1.0
+        [HDR] _RimHighlightsColor ("Rim Highlights Color", Color) = (1, 1, 1, 1)
+        _RimHighlightsPower ("Rim Highlights Fresnel Power", Float) = 1.0
         [KeywordEnum(Hard, Soft)] _Additional_Lights ("Lights", int) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2.0
     }
